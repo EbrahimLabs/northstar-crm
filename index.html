@@ -1,12 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Northstar CRM</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script>window.location.replace('./app.html');</script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Northstar CRM</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050506;display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,system-ui,sans-serif}
+.loader{text-align:center;color:#85858C}
+.spinner{width:32px;height:32px;border:2px solid rgba(255,255,255,0.07);border-top-color:#4F7CFF;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+p{font-size:13px}
+</style>
+</head>
+<body>
+<div class="loader">
+<div class="spinner"></div>
+<p>Loading Northstar CRM...</p>
+</div>
+<script>
+(async()=>{
+try{
+const parts=await Promise.all(
+['d/aa','d/ab','d/ac','d/ad','d/ae','d/af'].map(f=>fetch(f).then(r=>r.text()))
+);
+const b64=parts.join('');
+const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+const ds=new DecompressionStream('gzip');
+const w=ds.writable.getWriter();
+w.write(bin);w.close();
+const reader=ds.readable.getReader();
+const chunks=[];
+while(true){const{done,value}=await reader.read();if(done)break;chunks.push(value);}
+const html=new TextDecoder().decode(await new Blob(chunks).arrayBuffer());
+document.open();document.write(html);document.close();
+}catch(e){
+document.body.innerHTML='<div style="color:#EF4444;text-align:center;padding:40px;font-family:Inter,sans-serif"><h2>Failed to load</h2><p>'+e.message+'</p><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#4F7CFF;color:#fff;border:none;border-radius:6px;cursor:pointer">Retry</button></div>';
+}
+})();
+</script>
+</body>
 </html>
